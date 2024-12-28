@@ -12,7 +12,7 @@ const Calendar = () => {
     <div className="container mx-auto p-4 pb-20 md:pb-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Mon Planning</h1>
-        <Button className="bg-primary hover:bg-primary/90">
+        <Button className="shadow-md hover:shadow-lg transition-all">
           <Plus className="w-5 h-5 mr-2" />
           Ajouter un cours
         </Button>
@@ -22,7 +22,7 @@ const Calendar = () => {
         <div className="grid grid-cols-8 gap-2 min-w-[800px]">
           <div className="sticky left-0 bg-white"></div>
           {daysOfWeek.map((day) => (
-            <div key={day} className="text-center font-semibold py-2 bg-secondary rounded-lg">
+            <div key={day} className="text-center font-medium py-3 bg-secondary rounded-xl shadow-sm">
               {day}
             </div>
           ))}
@@ -35,7 +35,7 @@ const Calendar = () => {
               {daysOfWeek.map((_, dayIndex) => (
                 <div
                   key={`${hour}-${dayIndex}`}
-                  className="border border-gray-200 rounded-lg h-12"
+                  className="border border-gray-100 rounded-xl h-12 hover:bg-secondary/50 transition-colors cursor-pointer"
                 ></div>
               ))}
             </>
