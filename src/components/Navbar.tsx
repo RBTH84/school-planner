@@ -12,8 +12,8 @@ export const Navbar = () => {
             to="/"
             className={`flex items-center px-6 py-3 rounded-2xl transition-all ${
               location.pathname === "/"
-                ? "text-primary bg-secondary shadow-sm"
-                : "text-gray-600 hover:text-primary hover:bg-secondary/50"
+                ? "text-pink-600 bg-pink-50 shadow-sm"
+                : "text-gray-600 hover:text-pink-600 hover:bg-pink-50/50"
             }`}
           >
             <Calendar className="w-5 h-5 mr-2" />
@@ -23,8 +23,8 @@ export const Navbar = () => {
             to="/bag"
             className={`flex items-center px-6 py-3 rounded-2xl transition-all ${
               location.pathname === "/bag"
-                ? "text-primary bg-secondary shadow-sm"
-                : "text-gray-600 hover:text-primary hover:bg-secondary/50"
+                ? "text-pink-600 bg-pink-50 shadow-sm"
+                : "text-gray-600 hover:text-pink-600 hover:bg-pink-50/50"
             }`}
           >
             <Package className="w-5 h-5 mr-2" />

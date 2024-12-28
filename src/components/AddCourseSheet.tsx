@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Course } from "@/types/course";
 import { useToast } from "@/components/ui/use-toast";
+import { Plus, X } from "lucide-react";
 
 interface AddCourseSheetProps {
   open: boolean;
@@ -27,6 +28,19 @@ export const AddCourseSheet = ({
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [dayOfWeek, setDayOfWeek] = useState("1");
+  const [materials, setMaterials] = useState<string[]>([]);
+  const [newMaterial, setNewMaterial] = useState("");
+
+  const handleAddMaterial = () => {
+    if (newMaterial.trim()) {
+      setMaterials([...materials, newMaterial.trim()]);
+      setNewMaterial("");
+    }
+  };
+
+  const handleRemoveMaterial = (index: number) => {
+    setMaterials(materials.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +48,7 @@ export const AddCourseSheet = ({
     if (!title || !startTime || !endTime || !dayOfWeek) {
       toast({
         title: "Erreur",
-        description: "Merci de remplir tous les champs",
+        description: "Merci de remplir tous les champs obligatoires",
         variant: "destructive",
       });
       return;
@@ -46,7 +60,7 @@ export const AddCourseSheet = ({
       startTime,
       endTime,
       dayOfWeek: parseInt(dayOfWeek),
-      materials: [],
+      materials,
     };
 
     onAddCourse(newCourse);
@@ -62,13 +76,15 @@ export const AddCourseSheet = ({
     setStartTime("");
     setEndTime("");
     setDayOfWeek("1");
+    setMaterials([]);
+    setNewMaterial("");
   };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent>
+      <SheetContent className="bg-white">
         <SheetHeader>
-          <SheetTitle>Ajouter un cours</SheetTitle>
+          <SheetTitle className="text-primary">Ajouter un cours</SheetTitle>
           <SheetDescription>
             Remplissez les informations pour ajouter un nouveau cours à votre
             planning
@@ -85,6 +101,7 @@ export const AddCourseSheet = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ex: Mathématiques"
+              className="border-pink-200 focus-visible:ring-pink-200"
             />
           </div>
 
@@ -96,7 +113,7 @@ export const AddCourseSheet = ({
               id="day"
               value={dayOfWeek}
               onChange={(e) => setDayOfWeek(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="w-full rounded-md border border-pink-200 bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-200"
             >
               <option value="1">Lundi</option>
               <option value="2">Mardi</option>
@@ -117,6 +134,7 @@ export const AddCourseSheet = ({
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
+              className="border-pink-200 focus-visible:ring-pink-200"
             />
           </div>
 
@@ -129,10 +147,53 @@ export const AddCourseSheet = ({
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
+              className="border-pink-200 focus-visible:ring-pink-200"
             />
           </div>
 
-          <Button type="submit" className="w-full">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Matériel nécessaire</label>
+            <div className="flex gap-2">
+              <Input
+                value={newMaterial}
+                onChange={(e) => setNewMaterial(e.target.value)}
+                placeholder="Ex: Cahier, livre..."
+                className="border-pink-200 focus-visible:ring-pink-200"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddMaterial();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                onClick={handleAddMaterial}
+                className="bg-pink-400 hover:bg-pink-500"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="space-y-2 mt-2">
+              {materials.map((material, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between bg-pink-50 p-2 rounded-md"
+                >
+                  <span>{material}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveMaterial(index)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full bg-pink-400 hover:bg-pink-500">
             Ajouter le cours
           </Button>
         </form>
