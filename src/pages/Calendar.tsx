@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Heart } from "lucide-react";
 import { Course } from "@/types/course";
 import { AddCourseSheet } from "@/components/AddCourseSheet";
 
@@ -31,7 +31,11 @@ const Calendar = () => {
   return (
     <div className="container mx-auto p-4 pb-20 md:pb-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-pink-500">Mon Planning</h1>
+        <div className="flex items-center gap-2">
+          <Heart className="w-6 h-6 text-pink-400" />
+          <h1 className="text-2xl font-bold text-pink-500">Planning de mon chaton</h1>
+          <Heart className="w-6 h-6 text-pink-400" />
+        </div>
         <Button 
           className="bg-pink-400 hover:bg-pink-500 shadow-md hover:shadow-lg transition-all"
           onClick={() => setIsAddCourseOpen(true)}
