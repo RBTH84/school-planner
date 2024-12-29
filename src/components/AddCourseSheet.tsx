@@ -6,13 +6,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Course, WeekType } from "@/types/course";
 import { useToast } from "@/components/ui/use-toast";
-import { Plus, X } from "lucide-react";
+import { CourseBasicInfo } from "./course/CourseBasicInfo";
+import { CourseMaterials } from "./course/CourseMaterials";
+import { CourseWeekType } from "./course/CourseWeekType";
 
 interface AddCourseSheetProps {
   open: boolean;
@@ -33,17 +32,6 @@ export const AddCourseSheet = ({
   const [materials, setMaterials] = useState<string[]>([]);
   const [newMaterial, setNewMaterial] = useState("");
   const [weekType, setWeekType] = useState<WeekType>("both");
-
-  const handleAddMaterial = () => {
-    if (newMaterial.trim()) {
-      setMaterials([...materials, newMaterial.trim()]);
-      setNewMaterial("");
-    }
-  };
-
-  const handleRemoveMaterial = (index: number) => {
-    setMaterials(materials.filter((_, i) => i !== index));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,129 +85,25 @@ export const AddCourseSheet = ({
         </SheetHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <label htmlFor="title" className="text-sm font-medium">
-              Nom du cours
-            </label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ex: Mathématiques"
-              className="border-pink-200 focus-visible:ring-pink-200"
-            />
-          </div>
+          <CourseBasicInfo
+            title={title}
+            setTitle={setTitle}
+            startTime={startTime}
+            setStartTime={setStartTime}
+            endTime={endTime}
+            setEndTime={setEndTime}
+            dayOfWeek={dayOfWeek}
+            setDayOfWeek={setDayOfWeek}
+          />
 
-          <div className="space-y-2">
-            <label htmlFor="day" className="text-sm font-medium">
-              Jour
-            </label>
-            <select
-              id="day"
-              value={dayOfWeek}
-              onChange={(e) => setDayOfWeek(e.target.value)}
-              className="w-full rounded-md border border-pink-200 bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-200"
-            >
-              <option value="1">Lundi</option>
-              <option value="2">Mardi</option>
-              <option value="3">Mercredi</option>
-              <option value="4">Jeudi</option>
-              <option value="5">Vendredi</option>
-              <option value="6">Samedi</option>
-              <option value="7">Dimanche</option>
-            </select>
-          </div>
+          <CourseWeekType weekType={weekType} setWeekType={setWeekType} />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Type de semaine</label>
-            <RadioGroup
-              defaultValue="both"
-              value={weekType}
-              onValueChange={(value) => setWeekType(value as WeekType)}
-              className="flex gap-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="both" id="both" />
-                <Label htmlFor="both">Toutes les semaines</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="A" id="weekA" />
-                <Label htmlFor="weekA">Semaine A</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="B" id="weekB" />
-                <Label htmlFor="weekB">Semaine B</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="startTime" className="text-sm font-medium">
-              Heure de début
-            </label>
-            <Input
-              id="startTime"
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className="border-pink-200 focus-visible:ring-pink-200"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="endTime" className="text-sm font-medium">
-              Heure de fin
-            </label>
-            <Input
-              id="endTime"
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              className="border-pink-200 focus-visible:ring-pink-200"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Matériel nécessaire</label>
-            <div className="flex gap-2">
-              <Input
-                value={newMaterial}
-                onChange={(e) => setNewMaterial(e.target.value)}
-                placeholder="Ex: Cahier, livre..."
-                className="border-pink-200 focus-visible:ring-pink-200"
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleAddMaterial();
-                  }
-                }}
-              />
-              <Button
-                type="button"
-                onClick={handleAddMaterial}
-                className="bg-pink-400 hover:bg-pink-500"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="space-y-2 mt-2">
-              {materials.map((material, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between bg-pink-50 p-2 rounded-md"
-                >
-                  <span>{material}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveMaterial(index)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+          <CourseMaterials
+            materials={materials}
+            setMaterials={setMaterials}
+            newMaterial={newMaterial}
+            setNewMaterial={setNewMaterial}
+          />
 
           <Button type="submit" className="w-full bg-pink-400 hover:bg-pink-500">
             Ajouter le cours

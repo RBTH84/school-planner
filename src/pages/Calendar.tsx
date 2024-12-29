@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Heart } from "lucide-react";
+import { Plus, Heart, Pencil, Trash2 } from "lucide-react";
 import { Course } from "@/types/course";
 import { AddCourseSheet } from "@/components/AddCourseSheet";
 import { CustomizationDialog } from "@/components/CustomizationDialog";
 import { getCurrentWeekType, shouldShowCourse } from "@/utils/weekUtils";
 import { Badge } from "@/components/ui/badge";
+import { addWeeks, format } from "date-fns";
+import { fr } from "date-fns/locale";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const Calendar = () => {
   const [courses, setCourses] = useState<Course[]>(() => {
@@ -27,6 +37,8 @@ const Calendar = () => {
 
   const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
   const [currentWeekType, setCurrentWeekType] = useState<"A" | "B">(getCurrentWeekType());
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [showNextWeek, setShowNextWeek] = useState(false);
 
   const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
   const hours = Array.from({ length: 14 }, (_, i) => i + 8);
@@ -40,10 +52,9 @@ const Calendar = () => {
   }, [title, primaryColor, secondaryColor]);
 
   useEffect(() => {
-    // Met à jour le type de semaine chaque fois que la date change
     const interval = setInterval(() => {
       setCurrentWeekType(getCurrentWeekType());
-    }, 1000 * 60 * 60); // Vérifie toutes les heures
+    }, 1000 * 60 * 60);
 
     return () => clearInterval(interval);
   }, []);
@@ -54,13 +65,22 @@ const Calendar = () => {
     localStorage.setItem("courses", JSON.stringify(updatedCourses));
   };
 
+  const handleDeleteCourse = (courseId: string) => {
+    const updatedCourses = courses.filter(course => course.id !== courseId);
+    setCourses(updatedCourses);
+    localStorage.setItem("courses", JSON.stringify(updatedCourses));
+    setSelectedCourse(null);
+    toast.success("Cours supprimé avec succès");
+  };
+
   const getCourseForTimeSlot = (hour: number, dayIndex: number) => {
+    const nextWeekType = currentWeekType === "A" ? "B" : "A";
     return courses.find(
       (course) => {
         const courseHour = parseInt(course.startTime.split(":")[0]);
         return courseHour === hour && 
                course.dayOfWeek === dayIndex + 1 && 
-               shouldShowCourse(course.weekType, currentWeekType);
+               (shouldShowCourse(course.weekType, showNextWeek ? nextWeekType : currentWeekType));
       }
     );
   };
@@ -82,8 +102,15 @@ const Calendar = () => {
           <Heart className="w-6 h-6" style={{ color: primaryColor }} />
         </div>
         <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={() => setShowNextWeek(!showNextWeek)}
+            className="text-sm"
+          >
+            {showNextWeek ? "Voir cette semaine" : "Voir semaine prochaine"}
+          </Button>
           <Badge variant="outline" className="text-sm">
-            Semaine {currentWeekType}
+            Semaine {showNextWeek ? (currentWeekType === "A" ? "B" : "A") : currentWeekType}
           </Badge>
           <Button 
             className="shadow-md hover:shadow-lg transition-all"
@@ -125,15 +152,19 @@ const Calendar = () => {
                 return (
                   <div
                     key={`${hour}-${dayIndex}`}
-                    className={`border rounded-xl h-12 transition-colors`}
+                    className={`border rounded-xl h-12 transition-colors ${course ? 'cursor-pointer hover:opacity-80' : ''}`}
                     style={{
                       borderColor: primaryColor + '20',
-                      backgroundColor: course ? secondaryColor : 'transparent',
-                      cursor: 'pointer'
+                      backgroundColor: course 
+                        ? showNextWeek 
+                          ? '#F1F0FB' 
+                          : secondaryColor 
+                        : 'transparent',
                     }}
+                    onClick={() => course && setSelectedCourse(course)}
                   >
                     {course && (
-                      <div className="p-1 text-xs font-medium truncate" style={{ color: primaryColor }}>
+                      <div className="p-1 text-xs font-medium truncate" style={{ color: showNextWeek ? '#8E9196' : primaryColor }}>
                         {course.title}
                       </div>
                     )}
@@ -150,6 +181,40 @@ const Calendar = () => {
         onOpenChange={setIsAddCourseOpen}
         onAddCourse={handleAddCourse}
       />
+
+      <Dialog open={!!selectedCourse} onOpenChange={() => setSelectedCourse(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedCourse?.title}</DialogTitle>
+            <DialogDescription>
+              {selectedCourse?.startTime} - {selectedCourse?.endTime}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {selectedCourse?.materials && selectedCourse.materials.length > 0 && (
+              <div>
+                <h3 className="font-medium mb-2">Matériel requis :</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  {selectedCourse.materials.map((material, index) => (
+                    <li key={index}>{material}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="destructive"
+                onClick={() => selectedCourse && handleDeleteCourse(selectedCourse.id)}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Supprimer
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
