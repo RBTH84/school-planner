@@ -70,9 +70,7 @@ const Calendar = () => {
           className="shadow-md hover:shadow-lg transition-all"
           style={{ 
             backgroundColor: primaryColor,
-            color: 'white',
-            '--tw-shadow-color': primaryColor,
-            '--tw-shadow': `var(--tw-shadow-colored)`
+            color: 'white'
           }}
           onClick={() => setIsAddCourseOpen(true)}
         >
