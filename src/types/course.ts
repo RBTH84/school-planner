@@ -1,3 +1,5 @@
+export type WeekType = "both" | "A" | "B";
+
 export interface Course {
   id: string;
   title: string;
@@ -5,4 +7,5 @@ export interface Course {
   endTime: string;
   dayOfWeek: number;
   materials: string[];
+  weekType: WeekType;
 }

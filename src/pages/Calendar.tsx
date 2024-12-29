@@ -4,6 +4,8 @@ import { Plus, Heart } from "lucide-react";
 import { Course } from "@/types/course";
 import { AddCourseSheet } from "@/components/AddCourseSheet";
 import { CustomizationDialog } from "@/components/CustomizationDialog";
+import { getCurrentWeekType, shouldShowCourse } from "@/utils/weekUtils";
+import { Badge } from "@/components/ui/badge";
 
 const Calendar = () => {
   const [courses, setCourses] = useState<Course[]>(() => {
@@ -24,6 +26,8 @@ const Calendar = () => {
   });
 
   const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
+  const [currentWeekType, setCurrentWeekType] = useState<"A" | "B">(getCurrentWeekType());
+
   const daysOfWeek = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
   const hours = Array.from({ length: 14 }, (_, i) => i + 8);
 
@@ -35,6 +39,15 @@ const Calendar = () => {
     document.documentElement.style.setProperty('--custom-secondary', secondaryColor);
   }, [title, primaryColor, secondaryColor]);
 
+  useEffect(() => {
+    // Met à jour le type de semaine chaque fois que la date change
+    const interval = setInterval(() => {
+      setCurrentWeekType(getCurrentWeekType());
+    }, 1000 * 60 * 60); // Vérifie toutes les heures
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handleAddCourse = (course: Course) => {
     const updatedCourses = [...courses, course];
     setCourses(updatedCourses);
@@ -45,7 +58,9 @@ const Calendar = () => {
     return courses.find(
       (course) => {
         const courseHour = parseInt(course.startTime.split(":")[0]);
-        return courseHour === hour && course.dayOfWeek === dayIndex + 1;
+        return courseHour === hour && 
+               course.dayOfWeek === dayIndex + 1 && 
+               shouldShowCourse(course.weekType, currentWeekType);
       }
     );
   };
@@ -66,17 +81,22 @@ const Calendar = () => {
           <h1 className="text-2xl font-bold" style={{ color: primaryColor }}>{title}</h1>
           <Heart className="w-6 h-6" style={{ color: primaryColor }} />
         </div>
-        <Button 
-          className="shadow-md hover:shadow-lg transition-all"
-          style={{ 
-            backgroundColor: primaryColor,
-            color: 'white'
-          }}
-          onClick={() => setIsAddCourseOpen(true)}
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Ajouter un cours
-        </Button>
+        <div className="flex items-center gap-4">
+          <Badge variant="outline" className="text-sm">
+            Semaine {currentWeekType}
+          </Badge>
+          <Button 
+            className="shadow-md hover:shadow-lg transition-all"
+            style={{ 
+              backgroundColor: primaryColor,
+              color: 'white'
+            }}
+            onClick={() => setIsAddCourseOpen(true)}
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Ajouter un cours
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-x-auto">

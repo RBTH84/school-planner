@@ -7,8 +7,10 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { Course } from "@/types/course";
+import { Course, WeekType } from "@/types/course";
 import { useToast } from "@/components/ui/use-toast";
 import { Plus, X } from "lucide-react";
 
@@ -30,6 +32,7 @@ export const AddCourseSheet = ({
   const [dayOfWeek, setDayOfWeek] = useState("1");
   const [materials, setMaterials] = useState<string[]>([]);
   const [newMaterial, setNewMaterial] = useState("");
+  const [weekType, setWeekType] = useState<WeekType>("both");
 
   const handleAddMaterial = () => {
     if (newMaterial.trim()) {
@@ -61,6 +64,7 @@ export const AddCourseSheet = ({
       endTime,
       dayOfWeek: parseInt(dayOfWeek),
       materials,
+      weekType,
     };
 
     onAddCourse(newCourse);
@@ -78,6 +82,7 @@ export const AddCourseSheet = ({
     setDayOfWeek("1");
     setMaterials([]);
     setNewMaterial("");
+    setWeekType("both");
   };
 
   return (
@@ -123,6 +128,29 @@ export const AddCourseSheet = ({
               <option value="6">Samedi</option>
               <option value="7">Dimanche</option>
             </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Type de semaine</label>
+            <RadioGroup
+              defaultValue="both"
+              value={weekType}
+              onValueChange={(value) => setWeekType(value as WeekType)}
+              className="flex gap-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="both" id="both" />
+                <Label htmlFor="both">Toutes les semaines</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="A" id="weekA" />
+                <Label htmlFor="weekA">Semaine A</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="B" id="weekB" />
+                <Label htmlFor="weekB">Semaine B</Label>
+              </div>
+            </RadioGroup>
           </div>
 
           <div className="space-y-2">
