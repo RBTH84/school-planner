@@ -51,6 +51,6 @@
       50px 50px;
     background-size: 100px 100px;
     background-color: #fff0f5;
-    opacity: 0.6; /* Réduction de l'opacité de 0.8 à 0.6 pour plus de transparence */
+    opacity: 0.4; /* Réduction de l'opacité à 0.4 pour plus de transparence */
   }
 }
