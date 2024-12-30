@@ -132,7 +132,7 @@ const Calendar = () => {
           {daysOfWeek.map((day) => (
             <div 
               key={day} 
-              className="text-center font-medium py-3 rounded-xl shadow-sm"
+              className="text-center font-bold py-3 rounded-xl shadow-sm"
               style={{ 
                 backgroundColor: secondaryColor,
                 color: primaryColor
@@ -144,7 +144,7 @@ const Calendar = () => {
 
           {hours.map((hour) => (
             <>
-              <div key={`time-${hour}`} className="sticky left-0 bg-white text-right pr-2 py-2 text-sm text-gray-600">
+              <div key={`time-${hour}`} className="sticky left-0 bg-white text-right pr-2 py-2 text-sm text-gray-600 font-bold">
                 {hour}:00
               </div>
               {daysOfWeek.map((_, dayIndex) => {
@@ -164,7 +164,7 @@ const Calendar = () => {
                     onClick={() => course && setSelectedCourse(course)}
                   >
                     {course && (
-                      <div className="p-1 text-xs font-medium truncate" style={{ color: showNextWeek ? '#8E9196' : primaryColor }}>
+                      <div className="p-1 text-xs font-bold truncate" style={{ color: showNextWeek ? '#8E9196' : primaryColor }}>
                         {course.title}
                       </div>
                     )}
@@ -185,8 +185,8 @@ const Calendar = () => {
       <Dialog open={!!selectedCourse} onOpenChange={() => setSelectedCourse(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{selectedCourse?.title}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="font-bold">{selectedCourse?.title}</DialogTitle>
+            <DialogDescription className="font-bold">
               {selectedCourse?.startTime} - {selectedCourse?.endTime}
             </DialogDescription>
           </DialogHeader>
@@ -194,10 +194,10 @@ const Calendar = () => {
           <div className="space-y-4">
             {selectedCourse?.materials && selectedCourse.materials.length > 0 && (
               <div>
-                <h3 className="font-medium mb-2">Matériel requis :</h3>
+                <h3 className="font-bold mb-2">Matériel requis :</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   {selectedCourse.materials.map((material, index) => (
-                    <li key={index}>{material}</li>
+                    <li key={index} className="font-bold">{material}</li>
                   ))}
                 </ul>
               </div>
