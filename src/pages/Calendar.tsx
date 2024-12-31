@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Heart } from "lucide-react";
+import { Plus, Heart, Settings } from "lucide-react";
 import { Course } from "@/types/course";
 import { AddCourseSheet } from "@/components/AddCourseSheet";
 import { CustomizationDialog } from "@/components/CustomizationDialog";
@@ -71,15 +71,6 @@ const Calendar = () => {
 
   return (
     <div className="container mx-auto p-4 pb-20 md:pb-4">
-      <CustomizationDialog
-        title={title}
-        onTitleChange={setTitle}
-        primaryColor={primaryColor}
-        onPrimaryColorChange={setPrimaryColor}
-        secondaryColor={secondaryColor}
-        onSecondaryColorChange={setSecondaryColor}
-      />
-      
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
           <Heart className="w-6 h-6" style={{ color: primaryColor }} />
@@ -183,6 +174,21 @@ const Calendar = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <CustomizationDialog
+        title={title}
+        onTitleChange={setTitle}
+        primaryColor={primaryColor}
+        onPrimaryColorChange={setPrimaryColor}
+        secondaryColor={secondaryColor}
+        onSecondaryColorChange={setSecondaryColor}
+      />
+
+      <div className="fixed bottom-20 right-4 md:bottom-4">
+        <Button variant="outline" size="icon" onClick={() => document.querySelector('[role="dialog"]')?.removeAttribute('hidden')}>
+          <Settings className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 };
