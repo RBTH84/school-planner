@@ -87,13 +87,15 @@ const Calendar = () => {
           <Heart className="w-6 h-6" style={{ color: primaryColor }} />
         </div>
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            onClick={() => setShowNextWeek(!showNextWeek)}
-            className="text-sm hidden md:flex"
-          >
-            {showNextWeek ? "Voir cette semaine" : "Voir semaine prochaine"}
-          </Button>
+          {!isMobile && (
+            <Button
+              variant="outline"
+              onClick={() => setShowNextWeek(!showNextWeek)}
+              className="text-sm hidden md:flex"
+            >
+              {showNextWeek ? "Voir cette semaine" : "Voir semaine prochaine"}
+            </Button>
+          )}
           <Badge variant="outline" className="text-sm">
             Semaine {showNextWeek ? (currentWeekType === "A" ? "B" : "A") : currentWeekType}
           </Badge>
@@ -110,6 +112,18 @@ const Calendar = () => {
           </Button>
         </div>
       </div>
+
+      {isMobile && (
+        <div className="mb-4">
+          <Button
+            variant="outline"
+            onClick={() => setShowNextWeek(!showNextWeek)}
+            className="w-full"
+          >
+            {showNextWeek ? "Voir cette semaine" : "Voir semaine prochaine"}
+          </Button>
+        </div>
+      )}
 
       {isMobile ? (
         <DayView
