@@ -1,0 +1,69 @@
+<svg 
+    width="512" 
+    height="512" 
+    viewBox="0 0 512 512" 
+    xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Fond coloré (cercle rose) -->
+  <circle 
+    cx="256" cy="256" r="256" 
+    fill="#F48FB1" />
+
+  <!-- Ombre ou couche plus claire -->
+  <circle 
+    cx="256" cy="256" r="220" 
+    fill="#FCE4EC" />
+
+  <!-- Partie principale du sac -->
+  <path 
+    d="M170,210 
+       Q170,150 256,150 
+       Q342,150 342,210
+       L342,340
+       Q342,360 322,360
+       L190,360
+       Q170,360 170,340
+       Z" 
+    fill="#C2185B" />
+
+  <!-- Rabat du sac (poche supérieure) -->
+  <path 
+    d="M180,210 
+       Q180,170 256,170 
+       Q332,170 332,210
+       Z" 
+    fill="#E91E63" />
+
+  <!-- Poignée (sur le haut du sac) -->
+  <path
+    d="M210,140 
+       Q256,110 302,140 
+       L295,150 
+       Q256,120 217,150 
+       Z"
+    fill="#880E4F" />
+
+  <!-- Straps gauche et droite (simplifiés) -->
+  <path 
+    d="M158,220 
+       Q130,260 158,300 
+       Z" 
+    fill="#880E4F" />
+  <path 
+    d="M354,220 
+       Q382,260 354,300 
+       Z" 
+    fill="#880E4F" />
+
+  <!-- Petite coche pour rappeler l'idée de check/planning -->
+  <path
+    d="M210,260 
+       l30,30 
+       l60,-60 
+       stroke='#FFFFFF' 
+       stroke-width='20' 
+       fill='none' 
+       stroke-linecap='round' 
+       stroke-linejoin='round' />
+</svg>
+
