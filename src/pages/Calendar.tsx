@@ -36,6 +36,7 @@ const Calendar = () => {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [showNextWeek, setShowNextWeek] = useState(false);
   const [selectedDay, setSelectedDay] = useState(new Date().getDay() || 7);
+  const [isCustomizationOpen, setIsCustomizationOpen] = useState(false);
   
   const isMobile = useIsMobile();
 
@@ -176,6 +177,8 @@ const Calendar = () => {
       </Dialog>
 
       <CustomizationDialog
+        open={isCustomizationOpen}
+        onOpenChange={setIsCustomizationOpen}
         title={title}
         onTitleChange={setTitle}
         primaryColor={primaryColor}
@@ -185,7 +188,11 @@ const Calendar = () => {
       />
 
       <div className="fixed bottom-20 right-4 md:bottom-4">
-        <Button variant="outline" size="icon" onClick={() => document.querySelector('[role="dialog"]')?.removeAttribute('hidden')}>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={() => setIsCustomizationOpen(true)}
+        >
           <Settings className="h-4 w-4" />
         </Button>
       </div>
