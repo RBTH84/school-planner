@@ -1,7 +1,21 @@
-{
-  "name": "schoolplanner",
+{{
+  "name": "School Planner",
+  "short_name": "Planner",
+  "description": "Planning du collège : semaines A/B, salles, professeurs, matériel nécessaire.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
   "theme_color": "#000000",
-  "background_color": "#000000",
-  "short_name": "planner",
-  "id": "idschoolplan1"
+  "icons": [
+    {
+      "src": "dessinicone2-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "dessinicone2-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
