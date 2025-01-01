@@ -4,14 +4,14 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Settings } from "lucide-react";
 
 interface CustomizationProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   title: string;
   onTitleChange: (title: string) => void;
   primaryColor: string;
@@ -21,6 +21,8 @@ interface CustomizationProps {
 }
 
 export const CustomizationDialog = ({
+  open,
+  onOpenChange,
   title,
   onTitleChange,
   primaryColor,
@@ -39,12 +41,7 @@ export const CustomizationDialog = ({
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="icon" className="fixed top-4 right-4">
-          <Settings className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Personnalisation</DialogTitle>
