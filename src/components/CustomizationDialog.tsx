@@ -8,6 +8,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CustomizationProps {
   open: boolean;
@@ -18,6 +20,12 @@ interface CustomizationProps {
   onPrimaryColorChange: (color: string) => void;
   secondaryColor: string;
   onSecondaryColorChange: (color: string) => void;
+  notificationsEnabled: boolean;
+  onNotificationsEnabledChange: (enabled: boolean) => void;
+  notificationTime: string;
+  onNotificationTimeChange: (time: string) => void;
+  userName: string;
+  onUserNameChange: (name: string) => void;
 }
 
 export const CustomizationDialog = ({
@@ -29,15 +37,27 @@ export const CustomizationDialog = ({
   onPrimaryColorChange,
   secondaryColor,
   onSecondaryColorChange,
+  notificationsEnabled,
+  onNotificationsEnabledChange,
+  notificationTime,
+  onNotificationTimeChange,
+  userName,
+  onUserNameChange,
 }: CustomizationProps) => {
   const [localTitle, setLocalTitle] = useState(title);
   const [localPrimaryColor, setLocalPrimaryColor] = useState(primaryColor);
   const [localSecondaryColor, setLocalSecondaryColor] = useState(secondaryColor);
+  const [localNotificationsEnabled, setLocalNotificationsEnabled] = useState(notificationsEnabled);
+  const [localNotificationTime, setLocalNotificationTime] = useState(notificationTime);
+  const [localUserName, setLocalUserName] = useState(userName);
 
   const handleSave = () => {
     onTitleChange(localTitle);
     onPrimaryColorChange(localPrimaryColor);
     onSecondaryColorChange(localSecondaryColor);
+    onNotificationsEnabledChange(localNotificationsEnabled);
+    onNotificationTimeChange(localNotificationTime);
+    onUserNameChange(localUserName);
   };
 
   return (
@@ -47,6 +67,15 @@ export const CustomizationDialog = ({
           <DialogTitle>Personnalisation</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="userName">Prénom</Label>
+            <Input
+              id="userName"
+              value={localUserName}
+              onChange={(e) => setLocalUserName(e.target.value)}
+              placeholder="Ton prénom"
+            />
+          </div>
           <div className="grid gap-2">
             <Label htmlFor="title">Titre</Label>
             <Input
@@ -89,6 +118,25 @@ export const CustomizationDialog = ({
               />
             </div>
           </div>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="notifications">Notifications de préparation du sac</Label>
+            <Switch
+              id="notifications"
+              checked={localNotificationsEnabled}
+              onCheckedChange={setLocalNotificationsEnabled}
+            />
+          </div>
+          {localNotificationsEnabled && (
+            <div className="grid gap-2">
+              <Label htmlFor="notificationTime">Heure de notification</Label>
+              <Input
+                id="notificationTime"
+                type="time"
+                value={localNotificationTime}
+                onChange={(e) => setLocalNotificationTime(e.target.value)}
+              />
+            </div>
+          )}
         </div>
         <Button onClick={handleSave}>Sauvegarder</Button>
       </DialogContent>

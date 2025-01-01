@@ -10,6 +10,7 @@ import { DayView } from "@/components/calendar/DayView";
 import { WeekView } from "@/components/calendar/WeekView";
 import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { CourseDialog } from "@/components/calendar/CourseDialog";
+import { toast } from "@/hooks/use-toast";
 
 const Calendar = () => {
   const [courses, setCourses] = useState<Course[]>(() => {
@@ -29,6 +30,18 @@ const Calendar = () => {
     return localStorage.getItem("secondaryColor") || "#fce7f3";
   });
 
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    return localStorage.getItem("notificationsEnabled") === "true";
+  });
+
+  const [notificationTime, setNotificationTime] = useState(() => {
+    return localStorage.getItem("notificationTime") || "20:00";
+  });
+
+  const [userName, setUserName] = useState(() => {
+    return localStorage.getItem("userName") || "";
+  });
+
   const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
   const [currentWeekType, setCurrentWeekType] = useState<"A" | "B">(getCurrentWeekType());
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
@@ -42,9 +55,12 @@ const Calendar = () => {
     localStorage.setItem("customTitle", title);
     localStorage.setItem("primaryColor", primaryColor);
     localStorage.setItem("secondaryColor", secondaryColor);
+    localStorage.setItem("notificationsEnabled", notificationsEnabled.toString());
+    localStorage.setItem("notificationTime", notificationTime);
+    localStorage.setItem("userName", userName);
     document.documentElement.style.setProperty("--custom-primary", primaryColor);
     document.documentElement.style.setProperty("--custom-secondary", secondaryColor);
-  }, [title, primaryColor, secondaryColor]);
+  }, [title, primaryColor, secondaryColor, notificationsEnabled, notificationTime, userName]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -53,6 +69,32 @@ const Calendar = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (notificationsEnabled) {
+      const checkNotificationTime = () => {
+        const now = new Date();
+        const [hours, minutes] = notificationTime.split(":").map(Number);
+        
+        if (now.getHours() === hours && now.getMinutes() === minutes) {
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const tomorrowDay = tomorrow.getDay() || 7;
+          
+          if (tomorrowDay !== 6 && tomorrowDay !== 7) { // Pas de notification pour le weekend
+            toast({
+              title: "Préparation du sac",
+              description: `Bonsoir ${userName}, n'oublie pas de préparer ton sac pour demain ! Bonne nuit ! 🌙`,
+              duration: 10000,
+            });
+          }
+        }
+      };
+
+      const notificationInterval = setInterval(checkNotificationTime, 1000 * 60); // Vérifie chaque minute
+      return () => clearInterval(notificationInterval);
+    }
+  }, [notificationsEnabled, notificationTime, userName]);
 
   const handleAddCourse = (course: Course) => {
     const updatedCourses = [...courses, course];
@@ -118,6 +160,12 @@ const Calendar = () => {
         onPrimaryColorChange={setPrimaryColor}
         secondaryColor={secondaryColor}
         onSecondaryColorChange={setSecondaryColor}
+        notificationsEnabled={notificationsEnabled}
+        onNotificationsEnabledChange={setNotificationsEnabled}
+        notificationTime={notificationTime}
+        onNotificationTimeChange={setNotificationTime}
+        userName={userName}
+        onUserNameChange={setUserName}
       />
 
       <div className="fixed bottom-20 right-4 md:bottom-4">
