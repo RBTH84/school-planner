@@ -1,4 +1,4 @@
-{{
+{
   "name": "School Planner",
   "short_name": "Planner",
   "description": "Planning du collège : semaines A/B, salles, professeurs, matériel nécessaire.",
@@ -17,5 +17,6 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "permissions": ["notifications"]
 }

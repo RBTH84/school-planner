@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "@/hooks/use-toast";
 
 interface CustomizationProps {
   open: boolean;
@@ -50,6 +51,41 @@ export const CustomizationDialog = ({
   const [localNotificationTime, setLocalNotificationTime] = useState(notificationTime);
   const [localUserName, setLocalUserName] = useState(userName);
 
+  const requestNotificationPermission = async () => {
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        setLocalNotificationsEnabled(true);
+        toast({
+          title: "Notifications activées",
+          description: "Vous recevrez des notifications pour préparer votre sac",
+        });
+      } else {
+        setLocalNotificationsEnabled(false);
+        toast({
+          title: "Notifications refusées",
+          description: "Vous ne recevrez pas de notifications. Vous pouvez changer cela dans les paramètres de votre navigateur.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la demande de permission:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'activer les notifications",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleNotificationToggle = async (checked: boolean) => {
+    if (checked && Notification.permission !== "granted") {
+      await requestNotificationPermission();
+    } else {
+      setLocalNotificationsEnabled(checked);
+    }
+  };
+
   const handleSave = () => {
     onTitleChange(localTitle);
     onPrimaryColorChange(localPrimaryColor);
@@ -57,7 +93,7 @@ export const CustomizationDialog = ({
     onNotificationsEnabledChange(localNotificationsEnabled);
     onNotificationTimeChange(localNotificationTime);
     onUserNameChange(localUserName);
-    onOpenChange(false); // Ferme la boîte de dialogue après la sauvegarde
+    onOpenChange(false);
   };
 
   return (
@@ -123,7 +159,7 @@ export const CustomizationDialog = ({
             <Switch
               id="notifications"
               checked={localNotificationsEnabled}
-              onCheckedChange={setLocalNotificationsEnabled}
+              onCheckedChange={handleNotificationToggle}
             />
           </div>
           {localNotificationsEnabled && (
