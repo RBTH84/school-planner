@@ -50,6 +50,14 @@ export const CustomizationDialog = ({
   const [localNotificationsEnabled, setLocalNotificationsEnabled] = useState(notificationsEnabled);
   const [localNotificationTime, setLocalNotificationTime] = useState(notificationTime);
   const [localUserName, setLocalUserName] = useState(userName);
+  const [isIOS, setIsIOS] = useState(false);
+
+  useEffect(() => {
+    // Détecte si l'appareil est un iOS
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    setIsIOS(isIOSDevice);
+  }, []);
 
   const requestNotificationPermission = async () => {
     try {
@@ -79,6 +87,15 @@ export const CustomizationDialog = ({
   };
 
   const handleNotificationToggle = async (checked: boolean) => {
+    if (isIOS) {
+      toast({
+        title: "Notifications non disponibles",
+        description: "Les notifications ne sont pas supportées sur iOS. Cette fonctionnalité est disponible sur Android et les navigateurs web desktop.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (checked && Notification.permission !== "granted") {
       await requestNotificationPermission();
     } else {
@@ -167,14 +184,20 @@ export const CustomizationDialog = ({
           >
             <Label htmlFor="notifications" className="cursor-pointer select-none">
               Notifications de préparation du sac
+              {isIOS && (
+                <span className="block text-xs text-red-500 mt-1">
+                  Non disponible sur iOS
+                </span>
+              )}
             </Label>
             <Switch
               id="notifications"
               checked={localNotificationsEnabled}
               onCheckedChange={handleNotificationToggle}
+              disabled={isIOS}
             />
           </div>
-          {localNotificationsEnabled && (
+          {localNotificationsEnabled && !isIOS && (
             <div className="grid gap-2">
               <Label htmlFor="notificationTime">Heure de notification</Label>
               <Input
