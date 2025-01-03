@@ -154,8 +154,20 @@ export const CustomizationDialog = ({
               />
             </div>
           </div>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="notifications">Notifications de préparation du sac</Label>
+          <div 
+            className="flex items-center justify-between cursor-pointer p-2 hover:bg-gray-100 rounded-lg"
+            onClick={() => handleNotificationToggle(!localNotificationsEnabled)}
+            role="button"
+            tabIndex={0}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleNotificationToggle(!localNotificationsEnabled);
+              }
+            }}
+          >
+            <Label htmlFor="notifications" className="cursor-pointer select-none">
+              Notifications de préparation du sac
+            </Label>
             <Switch
               id="notifications"
               checked={localNotificationsEnabled}
