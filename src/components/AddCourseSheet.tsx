@@ -75,7 +75,7 @@ export const AddCourseSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="bg-white">
+      <SheetContent className="bg-white overflow-y-auto max-h-[100dvh] pb-20">
         <SheetHeader>
           <SheetTitle className="text-primary">Ajouter un cours</SheetTitle>
           <SheetDescription>
