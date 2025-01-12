@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, Settings } from "lucide-react";
-import { Course, DatabaseCourse } from "@/types/course";
+import { Course, DatabaseCourse, WeekType } from "@/types/course";
 import { AddCourseSheet } from "@/components/AddCourseSheet";
 import { CustomizationDialog } from "@/components/CustomizationDialog";
 import { getCurrentWeekType } from "@/utils/weekUtils";
