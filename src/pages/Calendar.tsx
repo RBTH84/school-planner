@@ -11,12 +11,17 @@ import { WeekView } from "@/components/calendar/WeekView";
 import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { CourseDialog } from "@/components/calendar/CourseDialog";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const Calendar = () => {
-  const [courses, setCourses] = useState<Course[]>(() => {
-    const saved = localStorage.getItem("courses");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const queryClient = useQueryClient();
+  const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
+  const [currentWeekType, setCurrentWeekType] = useState<"A" | "B">(getCurrentWeekType());
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [showNextWeek, setShowNextWeek] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(new Date().getDay() || 7);
+  const [isCustomizationOpen, setIsCustomizationOpen] = useState(false);
 
   const [title, setTitle] = useState(() => {
     return localStorage.getItem("customTitle") || "Planning de mon chaton";
@@ -42,14 +47,79 @@ const Calendar = () => {
     return localStorage.getItem("userName") || "";
   });
 
-  const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
-  const [currentWeekType, setCurrentWeekType] = useState<"A" | "B">(getCurrentWeekType());
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [showNextWeek, setShowNextWeek] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(new Date().getDay() || 7);
-  const [isCustomizationOpen, setIsCustomizationOpen] = useState(false);
-
   const isMobile = useIsMobile();
+
+  // Fetch courses
+  const { data: courses = [] } = useQuery({
+    queryKey: ['courses'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*');
+      
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les cours",
+          variant: "destructive",
+        });
+        throw error;
+      }
+      
+      return data as Course[];
+    },
+  });
+
+  // Add course mutation
+  const addCourseMutation = useMutation({
+    mutationFn: async (course: Course) => {
+      const { error } = await supabase
+        .from('courses')
+        .insert([course]);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast({
+        title: "Cours ajouté !",
+        description: "Le cours a bien été ajouté à votre planning",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'ajouter le cours",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete course mutation
+  const deleteCourseMutation = useMutation({
+    mutationFn: async (courseId: string) => {
+      const { error } = await supabase
+        .from('courses')
+        .delete()
+        .eq('id', courseId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast({
+        title: "Cours supprimé",
+        description: "Le cours a bien été supprimé de votre planning",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le cours",
+        variant: "destructive",
+      });
+    },
+  });
 
   useEffect(() => {
     localStorage.setItem("customTitle", title);
@@ -81,7 +151,7 @@ const Calendar = () => {
           tomorrow.setDate(tomorrow.getDate() + 1);
           const tomorrowDay = tomorrow.getDay() || 7;
           
-          if (tomorrowDay !== 6 && tomorrowDay !== 7) { // Pas de notification pour le weekend
+          if (tomorrowDay !== 6 && tomorrowDay !== 7) {
             toast({
               title: "Préparation du sac",
               description: `Bonsoir ${userName}, n'oublie pas de préparer ton sac pour demain ! Bonne nuit ! 🌙`,
@@ -91,22 +161,17 @@ const Calendar = () => {
         }
       };
 
-      const notificationInterval = setInterval(checkNotificationTime, 1000 * 60); // Vérifie chaque minute
+      const notificationInterval = setInterval(checkNotificationTime, 1000 * 60);
       return () => clearInterval(notificationInterval);
     }
   }, [notificationsEnabled, notificationTime, userName]);
 
   const handleAddCourse = (course: Course) => {
-    const updatedCourses = [...courses, course];
-    setCourses(updatedCourses);
-    localStorage.setItem("courses", JSON.stringify(updatedCourses));
+    addCourseMutation.mutate(course);
   };
 
   const handleDeleteCourse = (courseId: string) => {
-    const updatedCourses = courses.filter((course) => course.id !== courseId);
-    setCourses(updatedCourses);
-    localStorage.setItem("courses", JSON.stringify(updatedCourses));
-    setSelectedCourse(null);
+    deleteCourseMutation.mutate(courseId);
   };
 
   return (
