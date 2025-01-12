@@ -80,6 +80,7 @@ const Login = () => {
               },
             },
           }}
+          providers={[]}
         />
       </div>
     </div>
