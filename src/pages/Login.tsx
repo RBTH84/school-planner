@@ -36,10 +36,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex flex-col bg-gray-50 py-6 px-4 sm:px-6 lg:px-8 overflow-y-auto">
+      <div className="w-full max-w-md mx-auto mt-0 space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-pink-400">
+          <h2 className="mt-2 text-center text-3xl font-extrabold text-pink-400">
             School Planner
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
