@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, Settings } from "lucide-react";
-import { Course } from "@/types/course";
+import { Course, DatabaseCourse } from "@/types/course";
 import { AddCourseSheet } from "@/components/AddCourseSheet";
 import { CustomizationDialog } from "@/components/CustomizationDialog";
 import { getCurrentWeekType } from "@/utils/weekUtils";
@@ -13,6 +13,26 @@ import { CourseDialog } from "@/components/calendar/CourseDialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+const mapDatabaseCourseToFrontend = (dbCourse: DatabaseCourse): Course => ({
+  id: dbCourse.id,
+  title: dbCourse.title,
+  startTime: dbCourse.start_time,
+  endTime: dbCourse.end_time,
+  dayOfWeek: dbCourse.day_of_week,
+  materials: dbCourse.materials,
+  weekType: dbCourse.week_type as WeekType,
+});
+
+const mapFrontendCourseToDatabase = (course: Course, userId: string): Omit<DatabaseCourse, 'id' | 'created_at'> => ({
+  user_id: userId,
+  title: course.title,
+  start_time: course.startTime,
+  end_time: course.endTime,
+  day_of_week: course.dayOfWeek,
+  materials: course.materials,
+  week_type: course.weekType,
+});
 
 const Calendar = () => {
   const queryClient = useQueryClient();
@@ -66,16 +86,19 @@ const Calendar = () => {
         throw error;
       }
       
-      return data as Course[];
+      return (data as DatabaseCourse[]).map(mapDatabaseCourseToFrontend);
     },
   });
 
   // Add course mutation
   const addCourseMutation = useMutation({
     mutationFn: async (course: Course) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
       const { error } = await supabase
         .from('courses')
-        .insert([course]);
+        .insert([mapFrontendCourseToDatabase(course, user.id)]);
       
       if (error) throw error;
     },

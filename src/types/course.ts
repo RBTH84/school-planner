@@ -9,3 +9,15 @@ export interface Course {
   materials: string[];
   weekType: WeekType;
 }
+
+export interface DatabaseCourse {
+  id: string;
+  user_id: string;
+  title: string;
+  start_time: string;
+  end_time: string;
+  day_of_week: number;
+  materials: string[];
+  week_type: string;
+  created_at: string;
+}
