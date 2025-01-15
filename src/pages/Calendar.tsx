@@ -1,47 +1,35 @@
-import { useState, useEffect } from "react";
-import { Plus, Settings } from "lucide-react";
-import { Course, DatabaseCourse, WeekType } from "@/types/course";
+import { useEffect } from "react";
 import { AddCourseSheet } from "@/components/AddCourseSheet";
 import { CustomizationDialog } from "@/components/CustomizationDialog";
-import { getCurrentWeekType } from "@/utils/weekUtils";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DayView } from "@/components/calendar/DayView";
 import { WeekView } from "@/components/calendar/WeekView";
 import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { CourseDialog } from "@/components/calendar/CourseDialog";
-import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
-const mapDatabaseCourseToFrontend = (dbCourse: DatabaseCourse): Course => ({
-  id: dbCourse.id,
-  title: dbCourse.title,
-  startTime: dbCourse.start_time,
-  endTime: dbCourse.end_time,
-  dayOfWeek: dbCourse.day_of_week,
-  materials: dbCourse.materials,
-  weekType: dbCourse.week_type as WeekType,
-});
-
-const mapFrontendCourseToDatabase = (course: Course, userId: string): Omit<DatabaseCourse, 'id' | 'created_at'> => ({
-  user_id: userId,
-  title: course.title,
-  start_time: course.startTime,
-  end_time: course.endTime,
-  day_of_week: course.dayOfWeek,
-  materials: course.materials,
-  week_type: course.weekType,
-});
+import { CustomizationButton } from "@/components/calendar/CustomizationButton";
+import { useCalendar } from "@/hooks/use-calendar";
 
 const Calendar = () => {
-  const queryClient = useQueryClient();
-  const [isAddCourseOpen, setIsAddCourseOpen] = useState(false);
-  const [currentWeekType, setCurrentWeekType] = useState<"A" | "B">(getCurrentWeekType());
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [showNextWeek, setShowNextWeek] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(new Date().getDay() || 7);
-  const [isCustomizationOpen, setIsCustomizationOpen] = useState(false);
+  const {
+    courses,
+    isAddCourseOpen,
+    setIsAddCourseOpen,
+    currentWeekType,
+    setCurrentWeekType,
+    selectedCourse,
+    setSelectedCourse,
+    showNextWeek,
+    setShowNextWeek,
+    selectedDay,
+    setSelectedDay,
+    isCustomizationOpen,
+    setIsCustomizationOpen,
+    addCourseMutation,
+    deleteCourseMutation,
+  } = useCalendar();
+
+  const isMobile = useIsMobile();
 
   const [title, setTitle] = useState(() => {
     return localStorage.getItem("customTitle") || "Planning de mon chaton";
@@ -65,83 +53,6 @@ const Calendar = () => {
 
   const [userName, setUserName] = useState(() => {
     return localStorage.getItem("userName") || "";
-  });
-
-  const isMobile = useIsMobile();
-
-  // Fetch courses
-  const { data: courses = [] } = useQuery({
-    queryKey: ['courses'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('courses')
-        .select('*');
-      
-      if (error) {
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les cours",
-          variant: "destructive",
-        });
-        throw error;
-      }
-      
-      return (data as DatabaseCourse[]).map(mapDatabaseCourseToFrontend);
-    },
-  });
-
-  // Add course mutation
-  const addCourseMutation = useMutation({
-    mutationFn: async (course: Course) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
-
-      const { error } = await supabase
-        .from('courses')
-        .insert([mapFrontendCourseToDatabase(course, user.id)]);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      toast({
-        title: "Cours ajouté !",
-        description: "Le cours a bien été ajouté à votre planning",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Impossible d'ajouter le cours",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Delete course mutation
-  const deleteCourseMutation = useMutation({
-    mutationFn: async (courseId: string) => {
-      const { error } = await supabase
-        .from('courses')
-        .delete()
-        .eq('id', courseId);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      toast({
-        title: "Cours supprimé",
-        description: "Le cours a bien été supprimé de votre planning",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer le cours",
-        variant: "destructive",
-      });
-    },
   });
 
   useEffect(() => {
@@ -189,14 +100,6 @@ const Calendar = () => {
     }
   }, [notificationsEnabled, notificationTime, userName]);
 
-  const handleAddCourse = (course: Course) => {
-    addCourseMutation.mutate(course);
-  };
-
-  const handleDeleteCourse = (courseId: string) => {
-    deleteCourseMutation.mutate(courseId);
-  };
-
   return (
     <div className="container mx-auto p-4 pb-20 md:pb-4">
       <CalendarHeader
@@ -230,13 +133,13 @@ const Calendar = () => {
       <AddCourseSheet
         open={isAddCourseOpen}
         onOpenChange={setIsAddCourseOpen}
-        onAddCourse={handleAddCourse}
+        onAddCourse={(course) => addCourseMutation.mutate(course)}
       />
 
       <CourseDialog
         selectedCourse={selectedCourse}
         setSelectedCourse={setSelectedCourse}
-        onDeleteCourse={handleDeleteCourse}
+        onDeleteCourse={(courseId) => deleteCourseMutation.mutate(courseId)}
       />
 
       <CustomizationDialog
@@ -256,15 +159,7 @@ const Calendar = () => {
         onUserNameChange={setUserName}
       />
 
-      <div className="fixed bottom-20 right-4 md:bottom-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setIsCustomizationOpen(true)}
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
-      </div>
+      <CustomizationButton onClick={() => setIsCustomizationOpen(true)} />
     </div>
   );
 };
