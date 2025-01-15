@@ -1,7 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AddCourseSheet } from "@/components/AddCourseSheet";
 import { CustomizationDialog } from "@/components/CustomizationDialog";
-import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { DayView } from "@/components/calendar/DayView";
 import { WeekView } from "@/components/calendar/WeekView";
@@ -9,6 +8,9 @@ import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { CourseDialog } from "@/components/calendar/CourseDialog";
 import { CustomizationButton } from "@/components/calendar/CustomizationButton";
 import { useCalendar } from "@/hooks/use-calendar";
+import { WeekType } from "@/types/course";
+import { toast } from "@/hooks/use-toast";
+import { getCurrentWeekType } from "@/utils/weekUtils";
 
 const Calendar = () => {
   const {
@@ -72,7 +74,7 @@ const Calendar = () => {
     }, 1000 * 60 * 60);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [setCurrentWeekType]);
 
   useEffect(() => {
     if (notificationsEnabled) {
