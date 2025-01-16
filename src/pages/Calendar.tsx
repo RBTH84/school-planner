@@ -45,6 +45,18 @@ const Calendar = () => {
     return localStorage.getItem("secondaryColor") || "#fce7f3";
   });
 
+  const [backgroundColor, setBackgroundColor] = useState(() => {
+    return localStorage.getItem("backgroundColor") || "#fff0f5";
+  });
+
+  const [fontColor, setFontColor] = useState(() => {
+    return localStorage.getItem("fontColor") || "#000000";
+  });
+
+  const [backgroundImage, setBackgroundImage] = useState(() => {
+    return localStorage.getItem("backgroundImage") || null;
+  });
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
     return localStorage.getItem("notificationsEnabled") === "true";
   });
@@ -61,12 +73,29 @@ const Calendar = () => {
     localStorage.setItem("customTitle", title);
     localStorage.setItem("primaryColor", primaryColor);
     localStorage.setItem("secondaryColor", secondaryColor);
+    localStorage.setItem("backgroundColor", backgroundColor);
+    localStorage.setItem("fontColor", fontColor);
+    if (backgroundImage) {
+      localStorage.setItem("backgroundImage", backgroundImage);
+    } else {
+      localStorage.removeItem("backgroundImage");
+    }
     localStorage.setItem("notificationsEnabled", notificationsEnabled.toString());
     localStorage.setItem("notificationTime", notificationTime);
     localStorage.setItem("userName", userName);
-    document.documentElement.style.setProperty("--custom-primary", primaryColor);
-    document.documentElement.style.setProperty("--custom-secondary", secondaryColor);
-  }, [title, primaryColor, secondaryColor, notificationsEnabled, notificationTime, userName]);
+
+    // Apply styles to body
+    document.body.style.backgroundColor = backgroundColor;
+    document.body.style.color = fontColor;
+    if (backgroundImage) {
+      document.body.style.backgroundImage = `url(${backgroundImage})`;
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundRepeat = 'no-repeat';
+    } else {
+      document.body.style.backgroundImage = 'none';
+    }
+  }, [title, primaryColor, secondaryColor, backgroundColor, fontColor, backgroundImage, notificationsEnabled, notificationTime, userName]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -159,6 +188,12 @@ const Calendar = () => {
         onNotificationTimeChange={setNotificationTime}
         userName={userName}
         onUserNameChange={setUserName}
+        backgroundColor={backgroundColor}
+        onBackgroundColorChange={setBackgroundColor}
+        fontColor={fontColor}
+        onFontColorChange={setFontColor}
+        backgroundImage={backgroundImage}
+        onBackgroundImageChange={setBackgroundImage}
       />
 
       <CustomizationButton onClick={() => setIsCustomizationOpen(true)} />

@@ -43,14 +43,5 @@
   body {
     @apply bg-background text-foreground font-bold;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background-image: 
-      radial-gradient(#ff69b4 20%, transparent 20%),
-      radial-gradient(#ff69b4 20%, transparent 20%);
-    background-position: 
-      0 0, 
-      50px 50px;
-    background-size: 100px 100px;
-    background-color: #fff0f5;
-    opacity: 1; /* Remontée de l'opacité à 1 pour un fond complètement opaque */
   }
 }
