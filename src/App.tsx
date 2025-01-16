@@ -18,6 +18,23 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Load and apply saved preferences
+    const backgroundColor = localStorage.getItem("backgroundColor");
+    const fontColor = localStorage.getItem("fontColor");
+    const backgroundUrl = localStorage.getItem("backgroundUrl");
+
+    if (backgroundColor) {
+      document.body.style.backgroundColor = backgroundColor;
+    }
+    if (fontColor) {
+      document.body.style.color = fontColor;
+    }
+    if (backgroundUrl) {
+      document.body.style.backgroundImage = `url(${backgroundUrl})`;
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundPosition = 'center';
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
@@ -42,7 +59,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="min-h-screen flex flex-col bg-white/80">
+          <div className="min-h-screen flex flex-col">
             <div className="flex-1">
               <Routes>
                 <Route
