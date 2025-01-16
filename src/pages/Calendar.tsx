@@ -45,58 +45,6 @@ const Calendar = () => {
     return localStorage.getItem("secondaryColor") || "#fce7f3";
   });
 
-  const [backgroundColor, setBackgroundColor] = useState(() => {
-    return localStorage.getItem("backgroundColor") || "#fff0f5";
-  });
-
-  const [fontColor, setFontColor] = useState(() => {
-    return localStorage.getItem("fontColor") || "#000000";
-  });
-
-  const [backgroundImage, setBackgroundImage] = useState(() => {
-    return localStorage.getItem("backgroundImage") || null;
-  });
-
-  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
-    return localStorage.getItem("notificationsEnabled") === "true";
-  });
-
-  const [notificationTime, setNotificationTime] = useState(() => {
-    return localStorage.getItem("notificationTime") || "20:00";
-  });
-
-  const [userName, setUserName] = useState(() => {
-    return localStorage.getItem("userName") || "";
-  });
-
-  useEffect(() => {
-    localStorage.setItem("customTitle", title);
-    localStorage.setItem("primaryColor", primaryColor);
-    localStorage.setItem("secondaryColor", secondaryColor);
-    localStorage.setItem("backgroundColor", backgroundColor);
-    localStorage.setItem("fontColor", fontColor);
-    if (backgroundImage) {
-      localStorage.setItem("backgroundImage", backgroundImage);
-    } else {
-      localStorage.removeItem("backgroundImage");
-    }
-    localStorage.setItem("notificationsEnabled", notificationsEnabled.toString());
-    localStorage.setItem("notificationTime", notificationTime);
-    localStorage.setItem("userName", userName);
-
-    // Apply styles to body
-    document.body.style.backgroundColor = backgroundColor;
-    document.body.style.color = fontColor;
-    if (backgroundImage) {
-      document.body.style.backgroundImage = `url(${backgroundImage})`;
-      document.body.style.backgroundSize = 'cover';
-      document.body.style.backgroundPosition = 'center';
-      document.body.style.backgroundRepeat = 'no-repeat';
-    } else {
-      document.body.style.backgroundImage = 'none';
-    }
-  }, [title, primaryColor, secondaryColor, backgroundColor, fontColor, backgroundImage, notificationsEnabled, notificationTime, userName]);
-
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentWeekType(getCurrentWeekType());
@@ -104,32 +52,6 @@ const Calendar = () => {
 
     return () => clearInterval(interval);
   }, [setCurrentWeekType]);
-
-  useEffect(() => {
-    if (notificationsEnabled) {
-      const checkNotificationTime = () => {
-        const now = new Date();
-        const [hours, minutes] = notificationTime.split(":").map(Number);
-        
-        if (now.getHours() === hours && now.getMinutes() === minutes) {
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          const tomorrowDay = tomorrow.getDay() || 7;
-          
-          if (tomorrowDay !== 6 && tomorrowDay !== 7) {
-            toast({
-              title: "Préparation du sac",
-              description: `Bonsoir ${userName}, n'oublie pas de préparer ton sac pour demain ! Bonne nuit ! 🌙`,
-              duration: 10000,
-            });
-          }
-        }
-      };
-
-      const notificationInterval = setInterval(checkNotificationTime, 1000 * 60);
-      return () => clearInterval(notificationInterval);
-    }
-  }, [notificationsEnabled, notificationTime, userName]);
 
   return (
     <div className="container mx-auto p-4 pb-20 md:pb-4">
@@ -174,26 +96,8 @@ const Calendar = () => {
       />
 
       <CustomizationDialog
-        open={isCustomizationOpen}
-        onOpenChange={setIsCustomizationOpen}
-        title={title}
-        onTitleChange={setTitle}
-        primaryColor={primaryColor}
-        onPrimaryColorChange={setPrimaryColor}
-        secondaryColor={secondaryColor}
-        onSecondaryColorChange={setSecondaryColor}
-        notificationsEnabled={notificationsEnabled}
-        onNotificationsEnabledChange={setNotificationsEnabled}
-        notificationTime={notificationTime}
-        onNotificationTimeChange={setNotificationTime}
-        userName={userName}
-        onUserNameChange={setUserName}
-        backgroundColor={backgroundColor}
-        onBackgroundColorChange={setBackgroundColor}
-        fontColor={fontColor}
-        onFontColorChange={setFontColor}
-        backgroundImage={backgroundImage}
-        onBackgroundImageChange={setBackgroundImage}
+        isOpen={isCustomizationOpen}
+        onClose={() => setIsCustomizationOpen(false)}
       />
 
       <CustomizationButton onClick={() => setIsCustomizationOpen(true)} />
