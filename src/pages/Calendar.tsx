@@ -8,8 +8,6 @@ import { CalendarHeader } from "@/components/calendar/CalendarHeader";
 import { CourseDialog } from "@/components/calendar/CourseDialog";
 import { CustomizationButton } from "@/components/calendar/CustomizationButton";
 import { useCalendar } from "@/hooks/use-calendar";
-import { WeekType } from "@/types/course";
-import { toast } from "@/hooks/use-toast";
 import { getCurrentWeekType } from "@/utils/weekUtils";
 
 const Calendar = () => {
@@ -17,8 +15,6 @@ const Calendar = () => {
     courses,
     isAddCourseOpen,
     setIsAddCourseOpen,
-    currentWeekType,
-    setCurrentWeekType,
     selectedCourse,
     setSelectedCourse,
     showNextWeek,
@@ -45,13 +41,41 @@ const Calendar = () => {
     return localStorage.getItem("secondaryColor") || "#fce7f3";
   });
 
+  const [currentWeekType, setCurrentWeekType] = useState<"A" | "B">(() => {
+    const override = localStorage.getItem("overrideWeekType") === "true";
+    if (override) {
+      return (localStorage.getItem("manualWeekType") as "A" | "B") || "A";
+    }
+    return getCurrentWeekType();
+  });
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentWeekType(getCurrentWeekType());
+      const override = localStorage.getItem("overrideWeekType") === "true";
+      if (!override) {
+        setCurrentWeekType(getCurrentWeekType());
+      }
     }, 1000 * 60 * 60);
 
     return () => clearInterval(interval);
-  }, [setCurrentWeekType]);
+  }, []);
+
+  // Listen for changes in localStorage
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "overrideWeekType" || e.key === "manualWeekType") {
+        const override = localStorage.getItem("overrideWeekType") === "true";
+        if (override) {
+          setCurrentWeekType((localStorage.getItem("manualWeekType") as "A" | "B") || "A");
+        } else {
+          setCurrentWeekType(getCurrentWeekType());
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   return (
     <div className="container mx-auto p-4 pb-20 md:pb-4">

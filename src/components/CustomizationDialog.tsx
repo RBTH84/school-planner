@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { Switch } from "./ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useEffect } from "react";
@@ -17,6 +18,12 @@ export function CustomizationDialog({ isOpen, onClose }: CustomizationDialogProp
   const [fontColor, setFontColor] = useState("#000000");
   const [backgroundImage, setBackgroundImage] = useState<File | null>(null);
   const [currentBackgroundUrl, setCurrentBackgroundUrl] = useState<string>("");
+  const [overrideWeekType, setOverrideWeekType] = useState(() => {
+    return localStorage.getItem("overrideWeekType") === "true";
+  });
+  const [manualWeekType, setManualWeekType] = useState<"A" | "B">(() => {
+    return (localStorage.getItem("manualWeekType") as "A" | "B") || "A";
+  });
 
   useEffect(() => {
     // Load saved preferences from localStorage
@@ -40,6 +47,8 @@ export function CustomizationDialog({ isOpen, onClose }: CustomizationDialogProp
       // Save color preferences
       localStorage.setItem("backgroundColor", backgroundColor);
       localStorage.setItem("fontColor", fontColor);
+      localStorage.setItem("overrideWeekType", overrideWeekType.toString());
+      localStorage.setItem("manualWeekType", manualWeekType);
 
       // Upload background image if selected
       if (backgroundImage) {
@@ -145,6 +154,36 @@ export function CustomizationDialog({ isOpen, onClose }: CustomizationDialogProp
               </div>
             </div>
           )}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="overrideWeek" className="text-right">
+              Override Week Type
+            </Label>
+            <div className="col-span-3 flex items-center space-x-4">
+              <Switch
+                id="overrideWeek"
+                checked={overrideWeekType}
+                onCheckedChange={setOverrideWeekType}
+              />
+              {overrideWeekType && (
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant={manualWeekType === "A" ? "default" : "outline"}
+                    onClick={() => setManualWeekType("A")}
+                    className="w-12"
+                  >
+                    A
+                  </Button>
+                  <Button
+                    variant={manualWeekType === "B" ? "default" : "outline"}
+                    onClick={() => setManualWeekType("B")}
+                    className="w-12"
+                  >
+                    B
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         <div className="flex justify-end gap-4">
           <Button variant="outline" onClick={onClose}>
