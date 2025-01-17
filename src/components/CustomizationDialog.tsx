@@ -7,7 +7,6 @@ import { Switch } from "./ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { TimePicker } from "./ui/time-picker";
 
 interface CustomizationDialogProps {
   isOpen: boolean;
