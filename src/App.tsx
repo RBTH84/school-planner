@@ -22,6 +22,7 @@ const App = () => {
     const backgroundColor = localStorage.getItem("backgroundColor");
     const fontColor = localStorage.getItem("fontColor");
     const backgroundUrl = localStorage.getItem("backgroundUrl");
+    const selectedFont = localStorage.getItem("selectedFont");
 
     if (backgroundColor) {
       document.body.style.backgroundColor = backgroundColor;
@@ -33,6 +34,11 @@ const App = () => {
       document.body.style.backgroundImage = `url(${backgroundUrl})`;
       document.body.style.backgroundSize = 'cover';
       document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundRepeat = 'no-repeat';
+      document.body.style.backgroundAttachment = 'fixed';
+    }
+    if (selectedFont) {
+      document.body.style.fontFamily = selectedFont;
     }
 
     supabase.auth.getSession().then(({ data: { session } }) => {

@@ -38,7 +38,6 @@ export function CustomizationDialog({ isOpen, onClose }: CustomizationDialogProp
   });
 
   useEffect(() => {
-    // Load saved preferences from localStorage
     const savedBg = localStorage.getItem("backgroundColor");
     const savedFont = localStorage.getItem("fontColor");
     const savedBgUrl = localStorage.getItem("backgroundUrl");
@@ -56,15 +55,20 @@ export function CustomizationDialog({ isOpen, onClose }: CustomizationDialogProp
     if (savedNotificationsEnabled) setNotificationsEnabled(savedNotificationsEnabled === "true");
   }, []);
 
-  const handleBackgroundImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBackgroundImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setBackgroundImage(e.target.files[0]);
+      const file = e.target.files[0];
+      setBackgroundImage(file);
+      
+      // Create a temporary URL for preview
+      const objectUrl = URL.createObjectURL(file);
+      setCurrentBackgroundUrl(objectUrl);
     }
   };
 
   const handleSave = async () => {
     try {
-      // Save all preferences
+      // Save basic preferences
       localStorage.setItem("backgroundColor", backgroundColor);
       localStorage.setItem("fontColor", fontColor);
       localStorage.setItem("overrideWeekType", overrideWeekType.toString());
@@ -86,7 +90,10 @@ export function CustomizationDialog({ isOpen, onClose }: CustomizationDialogProp
           .from('backgrounds')
           .upload(fileName, backgroundImage);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Upload error:', error);
+          throw error;
+        }
 
         if (data) {
           const { data: { publicUrl } } = supabase.storage
@@ -95,30 +102,32 @@ export function CustomizationDialog({ isOpen, onClose }: CustomizationDialogProp
 
           localStorage.setItem("backgroundUrl", publicUrl);
           setCurrentBackgroundUrl(publicUrl);
+          
+          // Apply background image immediately
+          document.body.style.backgroundImage = `url(${publicUrl})`;
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundPosition = 'center';
+          document.body.style.backgroundRepeat = 'no-repeat';
+          document.body.style.backgroundAttachment = 'fixed';
         }
       }
 
-      // Apply styles to body
+      // Apply other styles
       document.body.style.backgroundColor = backgroundColor;
       document.body.style.color = fontColor;
-      if (currentBackgroundUrl) {
-        document.body.style.backgroundImage = `url(${currentBackgroundUrl})`;
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-      }
       document.body.style.fontFamily = selectedFont;
 
       toast({
-        title: "Customization saved",
-        description: "Your preferences have been updated",
+        title: "Personnalisation sauvegardée",
+        description: "Vos préférences ont été mises à jour",
       });
 
       onClose();
     } catch (error) {
       console.error('Error saving customization:', error);
       toast({
-        title: "Error",
-        description: "Failed to save customization",
+        title: "Erreur",
+        description: "Impossible de sauvegarder les personnalisations",
         variant: "destructive",
       });
     }
